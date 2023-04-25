@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
@@ -24,14 +23,20 @@ func NewEnsemble(path string) (*Ensemble, error) {
 }
 
 func (e Ensemble) Start(branch string) error {
-	refName := plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branch))
+	headRef, err := e.repo.Head()
+	if err != nil {
+		return err
+	}
+	ref := plumbing.NewHashReference(getReferenceName(branch), headRef.Hash())
 
-	return e.repo.CreateBranch(&config.Branch{
-		Name:        branch,
-		Remote:      branch,
-		Merge:       refName,
-		Rebase:      "true",
-		Description: "",
-	})
+	if err := e.repo.Storer.SetReference(ref); err != nil {
+		return err
+	}
 
+	e.repo.Push(&git.PushOptions{})
+
+}
+
+func getReferenceName(ref string) plumbing.ReferenceName {
+	return plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", ref))
 }

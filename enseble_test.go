@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -13,18 +12,24 @@ func TestStartNoRepo(t *testing.T) {
 }
 
 func TestStart(t *testing.T) {
-	repo, err := NewEnsemble(".")
-	assert.NoError(t, err)
-	err = repo.Start("test")
+	var (
+		branchName string = "test"
+	)
+	e, err := NewEnsemble(".")
 	assert.NoError(t, err)
 
-	branches, err := repo.repo.Branches()
-	if err != nil {
-		return
-	}
+	err = e.Start(branchName)
+	assert.NoError(t, err)
 
+	branches, _ := e.repo.Branches()
+
+	foundBranch := false
 	_ = branches.ForEach(func(reference *plumbing.Reference) error {
-		fmt.Println(reference)
+		if getReferenceName(branchName) == reference.Name() {
+			err = e.repo.Storer.RemoveReference(reference.Name())
+			foundBranch = true
+		}
 		return nil
 	})
+	assert.True(t, foundBranch)
 }
