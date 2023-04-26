@@ -39,12 +39,12 @@ func (e *Ensemble) Start(branch string) error {
 	e.setWantedEnsembleBranch(branch)
 	ensembleBranch, err := e.getLocalEnsembleBranch()
 	if err != nil {
-		if err := e.newEnsembleBranch(err); err != nil {
+		ensembleBranch, err = e.newEnsembleBranch()
+		if err != nil {
 			return err
 		}
-		return nil
 	}
-	fmt.Printf("git checkout %s", ensembleBranch.String())
+	fmt.Printf("git checkout %s", e.ensembleBranch)
 	err = w.Checkout(&git.CheckoutOptions{
 		Branch: *ensembleBranch,
 	})
@@ -54,15 +54,15 @@ func (e *Ensemble) Start(branch string) error {
 	return nil
 }
 
-func (e *Ensemble) newEnsembleBranch(err error) error {
+func (e *Ensemble) newEnsembleBranch() (*plumbing.ReferenceName, error) {
 	headRef, err := e.repo.Head()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	ref := plumbing.NewHashReference(e.wantedEnsembleBranchRef(), headRef.Hash())
 
 	if err := e.repo.Storer.SetReference(ref); err != nil {
-		return err
+		return nil, err
 	}
 
 	e.repo.CreateBranch(&config.Branch{
@@ -71,10 +71,11 @@ func (e *Ensemble) newEnsembleBranch(err error) error {
 		Remote: "origin",
 	})
 	if err := e.repo.Push(&git.PushOptions{}); err != nil {
-		return err
+		return nil, err
 	}
 	fmt.Printf("Created new ensemble <%s>", e.ensembleBranch)
-	return nil
+	refName := ref.Name()
+	return &refName, nil
 }
 
 func (e *Ensemble) Next() error {
@@ -91,7 +92,9 @@ func (e *Ensemble) Next() error {
 		return err
 	}
 	fmt.Print(status.String())
+	fmt.Println("Commiting changes...")
 	worktree.Commit("Ensemble WiP", &git.CommitOptions{})
+	fmt.Println("Pushing changes...")
 	e.repo.Push(&git.PushOptions{})
 	return nil
 }
@@ -99,6 +102,7 @@ func (e *Ensemble) Next() error {
 func (e *Ensemble) getLocalEnsembleBranch() (*plumbing.ReferenceName, error) {
 	var (
 		ensembleBranch plumbing.ReferenceName
+		branchFound    bool
 	)
 
 	branches, err := e.repo.Branches()
@@ -110,13 +114,15 @@ func (e *Ensemble) getLocalEnsembleBranch() (*plumbing.ReferenceName, error) {
 		fmt.Println("Found branch " + ref.Name().String())
 		if ref.Name() == e.wantedEnsembleBranchRef() {
 			ensembleBranch = ref.Name()
+			branchFound = true
 		}
 		return nil
 	})
-	if &ensembleBranch != nil {
+	if branchFound {
 		return &ensembleBranch, nil
+	} else {
+		return nil, errors.New("no ensemble branch found")
 	}
-	return nil, errors.New("no ensemble branch found")
 }
 
 func (e *Ensemble) wantedEnsembleBranchRef() plumbing.ReferenceName {
