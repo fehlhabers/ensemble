@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
@@ -64,6 +65,11 @@ func (e *Ensemble) newEnsembleBranch(err error) error {
 		return err
 	}
 
+	e.repo.CreateBranch(&config.Branch{
+		Name:   e.ensembleBranch,
+		Merge:  e.wantedEnsembleBranchRef(),
+		Remote: "origin",
+	})
 	if err := e.repo.Push(&git.PushOptions{}); err != nil {
 		return err
 	}
