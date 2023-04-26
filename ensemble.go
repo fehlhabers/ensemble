@@ -33,7 +33,7 @@ func (e Ensemble) Start(branch string) error {
 		return err
 	}
 
-	e.repo.Push(&git.PushOptions{})
+	return nil
 
 }
 
