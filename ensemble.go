@@ -7,21 +7,28 @@ type Ensembler interface {
 }
 
 type Ensemble struct {
+	git GitFacade
 }
 
 var _ Ensembler = &Ensemble{}
 
+func NewEnsemble() *Ensemble {
+	return &Ensemble{
+		git: &EnsembleGitFacade{},
+	}
+}
+
 // Done implements Ensembler
-func (*Ensemble) Done() {
+func (e *Ensemble) Done() {
 	panic("unimplemented")
 }
 
 // Next implements Ensembler
-func (*Ensemble) Next() {
+func (e *Ensemble) Next() {
 	panic("unimplemented")
 }
 
 // Start implements Ensembler
-func (*Ensemble) Start() {
-	panic("unimplemented")
+func (e *Ensemble) Start() {
+	e.git.Pull()
 }
