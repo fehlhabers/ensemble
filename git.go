@@ -4,16 +4,17 @@ import (
 	"fmt"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 type GitFacade interface {
-	Branches()
+	Branches() ([]string, error)
 	Commit()
 	Add()
 	Push()
 	Pull() error
 	Fetch()
-	Checkout()
+	Checkout(branch string) error
 }
 
 type EnsembleGitFacade struct {
@@ -44,14 +45,29 @@ func (e *EnsembleGitFacade) Add() {
 	panic("unimplemented")
 }
 
-// Branches implements GitFacade
-func (e *EnsembleGitFacade) Branches() {
-	panic("unimplemented")
+func (e *EnsembleGitFacade) Branches() ([]string, error) {
+	var (
+		branches = make([]string, 0)
+	)
+
+	branchIt, err := e.repo.Branches()
+	if err != nil {
+		return nil, err
+	}
+
+	_ = branchIt.ForEach(func(r *plumbing.Reference) error {
+		branches = append(branches, string(r.Name()))
+		return nil
+	})
+
+	return branches, nil
 }
 
-// Checkout implements GitFacade
-func (e *EnsembleGitFacade) Checkout() {
-	panic("unimplemented")
+func (e *EnsembleGitFacade) Checkout(branch string) error {
+	return e.workTree.Checkout(&git.CheckoutOptions{
+		Branch: plumbing.NewBranchReferenceName(branch),
+		Create: true,
+	})
 }
 
 // Commit implements GitFacade

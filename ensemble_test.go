@@ -27,12 +27,12 @@ func (ge *TestGitEnsemble) Add() {
 }
 
 // Branches implements GitFacade
-func (ge *TestGitEnsemble) Branches() {
+func (ge *TestGitEnsemble) Branches() ([]string, error) {
 	panic("unimplemented")
 }
 
 // Checkout implements GitFacade
-func (ge *TestGitEnsemble) Checkout() {
+func (ge *TestGitEnsemble) Checkout(branch string) error {
 	panic("unimplemented")
 }
 
