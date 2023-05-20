@@ -11,7 +11,7 @@ type GitFacade interface {
 	Branches() ([]string, error)
 	Commit(message string) error
 	Add() error
-	Push()
+	Push() error
 	Pull() error
 	Fetch() error
 	Checkout(branch string) error
@@ -101,6 +101,9 @@ func (e *EnsembleGitFacade) Pull() error {
 }
 
 // Push implements GitFacade
-func (e *EnsembleGitFacade) Push() {
-	panic("unimplemented")
+func (e *EnsembleGitFacade) Push() error {
+	fmt.Println("git push -u origin")
+	return e.repo.Push(&git.PushOptions{
+		RemoteName: "origin",
+	})
 }

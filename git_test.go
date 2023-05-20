@@ -60,3 +60,9 @@ func TestFetch(t *testing.T) {
 	err = testee.Fetch()
 	require.NoError(t, err)
 }
+
+func TestPush(t *testing.T) {
+	testee, err := NewEnsembleGitFacade(".")
+	require.NoError(t, err)
+	testee.Push()
+}

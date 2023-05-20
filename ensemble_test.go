@@ -53,7 +53,7 @@ func (ge *TestGitEnsemble) Pull() error {
 }
 
 // Push implements GitFacade
-func (ge *TestGitEnsemble) Push() {
+func (ge *TestGitEnsemble) Push() error {
 	panic("unimplemented")
 }
 
