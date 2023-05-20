@@ -13,7 +13,7 @@ type GitFacade interface {
 	Add() error
 	Push()
 	Pull() error
-	Fetch()
+	Fetch() error
 	Checkout(branch string) error
 }
 
@@ -41,6 +41,7 @@ func NewEnsembleGitFacade(path string) (*EnsembleGitFacade, error) {
 }
 
 func (e *EnsembleGitFacade) Add() error {
+	fmt.Println("git add -A")
 	return e.workTree.AddWithOptions(&git.AddOptions{
 		All: true,
 	})
@@ -71,18 +72,23 @@ func (e *EnsembleGitFacade) Checkout(branch string) error {
 	})
 }
 
-// Commit implements GitFacade
 func (e *EnsembleGitFacade) Commit(message string) error {
+	fmt.Printf("git commit -m \"%s\"\n", message)
 	_, err := e.workTree.Commit(message, &git.CommitOptions{})
 	return err
 }
 
-// Fetch implements GitFacade
-func (e *EnsembleGitFacade) Fetch() {
-	panic("unimplemented")
+func (e *EnsembleGitFacade) Fetch() error {
+	fmt.Println("git fetch")
+	err := e.repo.Fetch(&git.FetchOptions{})
+	if err == git.NoErrAlreadyUpToDate {
+		fmt.Println(err)
+	} else if err != nil {
+		return err
+	}
+	return nil
 }
 
-// Pull implements GitFacade
 func (e *EnsembleGitFacade) Pull() error {
 	fmt.Println("Pulling latest...")
 	err := e.workTree.Pull(&git.PullOptions{})

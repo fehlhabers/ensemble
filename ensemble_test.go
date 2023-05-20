@@ -42,7 +42,7 @@ func (ge *TestGitEnsemble) Commit(message string) error {
 }
 
 // Fetch implements GitFacade
-func (ge *TestGitEnsemble) Fetch() {
+func (ge *TestGitEnsemble) Fetch() error {
 	panic("unimplemented")
 }
 

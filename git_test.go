@@ -53,3 +53,10 @@ func TestCommit(t *testing.T) {
 	err = testee.Commit("int test message")
 	require.NoError(t, err)
 }
+
+func TestFetch(t *testing.T) {
+	testee, err := NewEnsembleGitFacade(".")
+	require.NoError(t, err)
+	err = testee.Fetch()
+	require.NoError(t, err)
+}
