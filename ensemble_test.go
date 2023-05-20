@@ -22,7 +22,7 @@ type TestGitEnsemble struct {
 }
 
 // Add implements GitFacade
-func (ge *TestGitEnsemble) Add() {
+func (ge *TestGitEnsemble) Add() error {
 	panic("unimplemented")
 }
 
@@ -37,7 +37,7 @@ func (ge *TestGitEnsemble) Checkout(branch string) error {
 }
 
 // Commit implements GitFacade
-func (ge *TestGitEnsemble) Commit() {
+func (ge *TestGitEnsemble) Commit(message string) error {
 	panic("unimplemented")
 }
 

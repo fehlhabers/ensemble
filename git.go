@@ -9,8 +9,8 @@ import (
 
 type GitFacade interface {
 	Branches() ([]string, error)
-	Commit()
-	Add()
+	Commit(message string) error
+	Add() error
 	Push()
 	Pull() error
 	Fetch()
@@ -40,9 +40,10 @@ func NewEnsembleGitFacade(path string) (*EnsembleGitFacade, error) {
 	}, nil
 }
 
-// Add implements GitFacade
-func (e *EnsembleGitFacade) Add() {
-	panic("unimplemented")
+func (e *EnsembleGitFacade) Add() error {
+	return e.workTree.AddWithOptions(&git.AddOptions{
+		All: true,
+	})
 }
 
 func (e *EnsembleGitFacade) Branches() ([]string, error) {
@@ -71,8 +72,9 @@ func (e *EnsembleGitFacade) Checkout(branch string) error {
 }
 
 // Commit implements GitFacade
-func (e *EnsembleGitFacade) Commit() {
-	panic("unimplemented")
+func (e *EnsembleGitFacade) Commit(message string) error {
+	_, err := e.workTree.Commit(message, &git.CommitOptions{})
+	return err
 }
 
 // Fetch implements GitFacade

@@ -28,6 +28,7 @@ func TestBranches(t *testing.T) {
 func TestCheckout(t *testing.T) {
 	const (
 		intBranch string = "int-test"
+		intRef    string = "refs/heads/int-test"
 	)
 
 	testee, err := NewEnsembleGitFacade(".")
@@ -36,5 +37,19 @@ func TestCheckout(t *testing.T) {
 	require.NoError(t, err)
 	br, err := testee.Branches()
 	require.NoError(t, err)
-	assert.Contains(t, br, intBranch)
+	assert.Contains(t, br, intRef)
+}
+
+func TestAdd(t *testing.T) {
+	testee, err := NewEnsembleGitFacade(".")
+	require.NoError(t, err)
+	err = testee.Add()
+	require.NoError(t, err)
+}
+
+func TestCommit(t *testing.T) {
+	testee, err := NewEnsembleGitFacade(".")
+	require.NoError(t, err)
+	err = testee.Commit("int test message")
+	require.NoError(t, err)
 }
