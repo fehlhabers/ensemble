@@ -21,6 +21,10 @@ type TestGitEnsemble struct {
 	commandsGiven []string
 }
 
+func (*TestGitEnsemble) CheckoutRemoteTracked(branch string) error {
+	panic("unimplemented")
+}
+
 // Add implements GitFacade
 func (ge *TestGitEnsemble) Add() error {
 	panic("unimplemented")

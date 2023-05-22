@@ -14,6 +14,7 @@ type GitFacade interface {
 	Push() error
 	Pull() error
 	Fetch() error
+	CheckoutRemoteTracked(branch string) error
 	Checkout(branch string) error
 }
 
@@ -100,10 +101,21 @@ func (e *EnsembleGitFacade) Pull() error {
 	return nil
 }
 
-// Push implements GitFacade
 func (e *EnsembleGitFacade) Push() error {
 	fmt.Println("git push -u origin")
 	return e.repo.Push(&git.PushOptions{
 		RemoteName: "origin",
 	})
+}
+
+func (e *EnsembleGitFacade) CheckoutRemoteTracked(branch string) error {
+	localRef := plumbing.NewBranchReferenceName(branch)
+	e.Checkout(branch)
+	remoteRef := plumbing.NewRemoteReferenceName("origin", branch)
+	newRef := plumbing.NewSymbolicReference(localRef, remoteRef)
+
+	if err := e.repo.Storer.SetReference(newRef); err != nil {
+		return err
+	}
+	return nil
 }
