@@ -70,7 +70,6 @@ func (e *EnsembleGitFacade) Branches() ([]string, error) {
 func (e *EnsembleGitFacade) Checkout(branch string) error {
 	return e.workTree.Checkout(&git.CheckoutOptions{
 		Branch: plumbing.NewBranchReferenceName(branch),
-		Create: true,
 	})
 }
 
@@ -122,8 +121,6 @@ func (e *EnsembleGitFacade) CheckoutRemoteTracked(branch string) error {
 		return err
 	}
 	// e.Checkout(branch)
-	remoteRef := plumbing.NewRemoteReferenceName("origin", branch)
-	remoteBranchRef := plumbing.NewSymbolicReference(branchRef, remoteRef)
 	headRef, err := e.repo.Head()
 	if err != nil {
 		return err
@@ -132,8 +129,6 @@ func (e *EnsembleGitFacade) CheckoutRemoteTracked(branch string) error {
 	if err := e.repo.Storer.SetReference(ref); err != nil {
 		return err
 	}
-	if err := e.repo.Storer.SetReference(remoteBranchRef); err != nil {
-		return err
-	}
+	e.Checkout(branch)
 	return nil
 }
