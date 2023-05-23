@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
@@ -109,12 +110,29 @@ func (e *EnsembleGitFacade) Push() error {
 }
 
 func (e *EnsembleGitFacade) CheckoutRemoteTracked(branch string) error {
-	localRef := plumbing.NewBranchReferenceName(branch)
-	e.Checkout(branch)
-	remoteRef := plumbing.NewRemoteReferenceName("origin", branch)
-	newRef := plumbing.NewSymbolicReference(localRef, remoteRef)
+	branchRef := plumbing.NewBranchReferenceName(branch)
 
-	if err := e.repo.Storer.SetReference(newRef); err != nil {
+	opts := &config.Branch{
+		Name:   branch,
+		Remote: "origin",
+		Merge:  branchRef,
+	}
+
+	if err := e.repo.CreateBranch(opts); err != nil {
+		return err
+	}
+	// e.Checkout(branch)
+	remoteRef := plumbing.NewRemoteReferenceName("origin", branch)
+	remoteBranchRef := plumbing.NewSymbolicReference(branchRef, remoteRef)
+	headRef, err := e.repo.Head()
+	if err != nil {
+		return err
+	}
+	ref := plumbing.NewHashReference(branchRef, headRef.Hash())
+	if err := e.repo.Storer.SetReference(ref); err != nil {
+		return err
+	}
+	if err := e.repo.Storer.SetReference(remoteBranchRef); err != nil {
 		return err
 	}
 	return nil
