@@ -8,6 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	intBranch string = "int-test"
+	intRef    string = "refs/heads/int-test"
+)
+
 func TestPull(t *testing.T) {
 	testee, err := NewEnsembleGitFacade(".")
 	require.NoError(t, err)
@@ -26,11 +31,6 @@ func TestBranches(t *testing.T) {
 }
 
 func TestCheckout(t *testing.T) {
-	const (
-		intBranch string = "int-test"
-		intRef    string = "refs/heads/int-test"
-	)
-
 	testee, err := NewEnsembleGitFacade(".")
 	require.NoError(t, err)
 	err = testee.Checkout(intBranch)
@@ -65,4 +65,11 @@ func TestPush(t *testing.T) {
 	testee, err := NewEnsembleGitFacade(".")
 	require.NoError(t, err)
 	testee.Push()
+}
+
+func TestCheckoutRemoteTracked(t *testing.T) {
+	testee, err := NewEnsembleGitFacade(".")
+	require.NoError(t, err)
+	err = testee.CheckoutRemoteTracked(intBranch)
+	require.NoError(t, err)
 }
