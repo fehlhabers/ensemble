@@ -109,26 +109,22 @@ func (e *EnsembleGitFacade) Push() error {
 }
 
 func (e *EnsembleGitFacade) CheckoutRemoteTracked(branch string) error {
-	branchRef := plumbing.NewBranchReferenceName(branch)
 
-	opts := &config.Branch{
-		Name:   branch,
-		Remote: "origin",
-		Merge:  branchRef,
-	}
+	// we want to create a branch 'issues/166' that'd track remote/master
+	var name, remote, remoteBranch = "issues/166", "origin", "main"
 
-	if err := e.repo.CreateBranch(opts); err != nil {
-		return err
-	}
-	// e.Checkout(branch)
-	headRef, err := e.repo.Head()
-	if err != nil {
-		return err
-	}
-	ref := plumbing.NewHashReference(branchRef, headRef.Hash())
-	if err := e.repo.Storer.SetReference(ref); err != nil {
-		return err
-	}
+	// we resolve origin/master to a hash
+	var remoteRef = plumbing.NewRemoteReferenceName(remote, remoteBranch)
+	var ref, _ = e.repo.Reference(remoteRef, true)
+
+	// create a new "tracking config"
+	var mergeRef = plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", remoteBranch))
+	_ = e.repo.CreateBranch(&config.Branch{Name: name, Remote: remote, Merge: mergeRef})
+
+	// and finally create an "actual branch"
+	var localRef = plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", name))
+	_ = e.repo.Storer.SetReference(plumbing.NewHashReference(localRef, ref.Hash()))
+
 	e.Checkout(branch)
 	return nil
 }
