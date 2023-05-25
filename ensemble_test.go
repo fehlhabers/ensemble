@@ -1,49 +1,64 @@
 package main
 
 import (
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/stretchr/testify/assert"
 	"testing"
-)
 
-const (
-	branchName = "test"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestStart(t *testing.T) {
-	t.Run("no repo defined", func(t *testing.T) {
-		_, err := NewEnsemble("../")
-		assert.Error(t, err)
-	})
-
-	t.Run("happy case", func(t *testing.T) {
-
-		e, err := NewEnsemble(".")
-		assert.NoError(t, err)
-
-		err = e.Start(branchName)
-		assert.NoError(t, err)
-
-		branches, _ := e.repo.Branches()
-
-		foundBranch := false
-		_ = branches.ForEach(func(reference *plumbing.Reference) error {
-			if e.wantedEnsembleBranchRef() == reference.Name() {
-				//err = e.repo.Storer.RemoveReference(reference.Name())
-				foundBranch = true
-			}
-			return nil
-		})
-		assert.True(t, foundBranch)
+	t.Run("pulls, checks out new branch, and pushes branch", func(t *testing.T) {
+		ge := &TestGitEnsemble{}
+		ensemble := &Ensemble{
+			git: ge,
+		}
+		ensemble.Start()
+		assert.Contains(t, ge.commandsGiven, "pull")
 	})
 }
 
-func TestNext(t *testing.T) {
-	t.Run("all changes added", func(t *testing.T) {
-		e, err := NewEnsemble(".")
-		assert.NoError(t, err)
-
-		err = e.Next()
-		assert.NoError(t, err)
-	})
+type TestGitEnsemble struct {
+	commandsGiven []string
 }
+
+func (*TestGitEnsemble) CheckoutRemoteTracked(branch string) error {
+	panic("unimplemented")
+}
+
+// Add implements GitFacade
+func (ge *TestGitEnsemble) Add() error {
+	panic("unimplemented")
+}
+
+// Branches implements GitFacade
+func (ge *TestGitEnsemble) Branches() ([]string, error) {
+	panic("unimplemented")
+}
+
+// Checkout implements GitFacade
+func (ge *TestGitEnsemble) Checkout(branch string) error {
+	panic("unimplemented")
+}
+
+// Commit implements GitFacade
+func (ge *TestGitEnsemble) Commit(message string) error {
+	panic("unimplemented")
+}
+
+// Fetch implements GitFacade
+func (ge *TestGitEnsemble) Fetch() error {
+	panic("unimplemented")
+}
+
+// Pull implements GitFacade
+func (ge *TestGitEnsemble) Pull() error {
+	ge.commandsGiven = append(ge.commandsGiven, "pull")
+	return nil
+}
+
+// Push implements GitFacade
+func (ge *TestGitEnsemble) Push() error {
+	panic("unimplemented")
+}
+
+var _ GitFacade = &TestGitEnsemble{}
