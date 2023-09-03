@@ -5,7 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/fehlhabers/ensemble/data"
 	"github.com/fehlhabers/ensemble/git"
 	"github.com/spf13/cobra"
 )
@@ -20,11 +22,23 @@ var newCmd = &cobra.Command{
 
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Got arguments: %+v\n", args)
-		fmt.Println("new called")
-		if err := git.NewBranch(args[0], "Starting new ensemble session..."); err != nil {
-			fmt.Printf("Error occured while starting session..%s", err)
+		var (
+			branch = fmt.Sprintf("%s%s", data.BranchPrefix, args[0])
+		)
+
+		fmt.Printf("Starting new ensemble session on <%s>...\n", branch)
+
+		if err := git.Pull(); err != nil {
+			fmt.Printf("WARNING! Not able to pull latest. Make sure your state is clean")
+			os.Exit(1)
 		}
+
+		if err := git.NewBranch(args[0], "Starting new ensemble session..."); err != nil {
+			fmt.Printf("WARNING! Unable to start new session")
+			os.Exit(1)
+		}
+
+		fmt.Printf("Started new ensemble session <%s> !!! Good luck, team!\n", branch)
 	},
 }
 
