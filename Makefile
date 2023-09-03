@@ -1,5 +1,5 @@
 build:
-	@go build -o bin/ensemble ./...
+	@go build -o bin/ensemble .
 
 test:
 	@go test -v ./...
