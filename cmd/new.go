@@ -22,7 +22,9 @@ var newCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("Got arguments: %+v\n", args)
 		fmt.Println("new called")
-		git.NewBranch(args[0], "Starting new ensemble session...")
+		if err := git.NewBranch(args[0], "Starting new ensemble session..."); err != nil {
+			fmt.Printf("Error occured while starting session..%s", err)
+		}
 	},
 }
 

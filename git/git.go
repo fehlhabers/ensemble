@@ -1,12 +1,7 @@
 package git
 
 import (
-	"fmt"
 	"os/exec"
-)
-
-var (
-	mainBranch = "main"
 )
 
 func Pull() error {
@@ -22,5 +17,5 @@ func NewBranch(branch string, message string) error {
 		return err
 	}
 
-	return exec.Command("git", "push", "-u", "origin", fmt.Sprintf("%s/%s", mainBranch, branch)).Run()
+	return exec.Command("git", "push", "-u", "origin", branch).Run()
 }
